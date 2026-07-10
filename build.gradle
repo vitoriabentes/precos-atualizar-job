@@ -1,0 +1,36 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.1.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'precos.atualizar'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(26)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	testCompileOnly 'org.projectlombok:lombok'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:4.0.0")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.2'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

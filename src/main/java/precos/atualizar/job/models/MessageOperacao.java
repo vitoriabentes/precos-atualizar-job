@@ -5,7 +5,6 @@ import lombok.*;
 import precos.atualizar.job.enums.TypeOfOperacao;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Builder
 @NoArgsConstructor
@@ -25,6 +24,4 @@ public class MessageOperacao {
     @JsonProperty("tipo_operacao")
     private TypeOfOperacao tipoOperacao;
 
-    @JsonProperty("data_hora_criacao")
-    private LocalDateTime dataHoraCriacao;
 }

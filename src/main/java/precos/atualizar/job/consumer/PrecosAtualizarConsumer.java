@@ -1,6 +1,4 @@
 package precos.atualizar.job.consumer;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import org.slf4j.Logger;
@@ -18,10 +16,18 @@ public class PrecosAtualizarConsumer {
     @Autowired
     private PrecificacaoService precificacaoService;
 
-    @SqsListener("${app.sqs.queue-name}")
+    @Autowired(required = false)
+    private ObjectMapper objectMapper;
+
+    @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "0", maxMessagesPerPoll = "1")
     public void listen(@Payload MessageOperacao message) {
-        log.info("Mensagem das {} recebida, atualizando precificação do ativo: {}", message.getCodigoAtivo(), message.getDataHoraCriacao());
-        precificacaoService.updateAtivoPrecificacao(message);
+        try {
+            log.info("Mensagem recebida, atualizando precificação do ativo: {}", message.getCodigoAtivo());
+            precificacaoService.updateAtivoPrecificacao(message);
+        } catch (Exception e) {
+            log.error("Erro ao processar a mensagem recebida: {}", e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

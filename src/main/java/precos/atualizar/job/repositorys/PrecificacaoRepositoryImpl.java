@@ -22,7 +22,7 @@ public class PrecificacaoRepositoryImpl implements PrecificacaoRepository {
     @Override
     public Precificacao findLastByCodigoAtivo(String codigoAtivo) {
         String query = """
-                SELECT * FROM PRECOS.PRECIFICACAO WHERE CODIGO_ATIVO = ?
+                SELECT * FROM PRECOS.PRECIFICACAO WHERE ATUALIZADO = TRUE AND CODIGO_ATIVO = ? 
                 """;
         return jdbcTemplate.queryForObject(query, precificacaoRowMapper, codigoAtivo);
     }
@@ -38,12 +38,13 @@ public class PrecificacaoRepositoryImpl implements PrecificacaoRepository {
     @Override
     public void registerNewPrecificacao(Precificacao precificacaoUpdate) {
         String query = """
-                INSERT INTO PRECOS.PRECIFICACAO (CODIGO_ATIVO, PRECO, ATUALIZADO)
-                VALUES (?, ?, ?)
+                INSERT INTO PRECOS.PRECIFICACAO (CODIGO_ATIVO, PRECO, DATA_HORA_ATUALIZACAO, ATUALIZADO)
+                VALUES (?, ?, ?, ?)
                 """;
         jdbcTemplate.update(query,
                 precificacaoUpdate.getCodigoAtivo(),
                 precificacaoUpdate.getPreco(),
+                precificacaoUpdate.getDataHoraAtualizacao(),
                 precificacaoUpdate.isAtualizado());
     }
 }

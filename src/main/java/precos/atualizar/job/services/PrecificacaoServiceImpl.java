@@ -11,6 +11,7 @@ import precos.atualizar.job.models.MessageOperacao;
 import precos.atualizar.job.models.Precificacao;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class PrecificacaoServiceImpl implements PrecificacaoService {
@@ -44,10 +45,13 @@ public class PrecificacaoServiceImpl implements PrecificacaoService {
             constant = constant.multiply(BigDecimal.valueOf(-1));
         }
         BigDecimal preco = messageOperacao.getPrecoUnitario().add(messageOperacao.getPrecoUnitario().multiply(constant));
+
+        log.info("Calculando nova precificação para o ativo: {}. Preço calculado: {}", messageOperacao.getCodigoAtivo(), preco);
+
         return new Precificacao(
                 messageOperacao.getCodigoAtivo(),
                 preco,
-                messageOperacao.getDataHoraCriacao(),
+                LocalDateTime.now(),
                 true
         );
     }

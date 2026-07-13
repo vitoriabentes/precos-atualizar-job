@@ -16,9 +16,6 @@ public class PrecosAtualizarConsumer {
     @Autowired
     private PrecificacaoService precificacaoService;
 
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
-
     @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "0", maxMessagesPerPoll = "1")
     public void listen(@Payload MessageOperacao message) {
         try {

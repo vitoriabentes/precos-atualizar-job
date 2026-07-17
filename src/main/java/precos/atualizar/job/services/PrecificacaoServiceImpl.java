@@ -22,8 +22,9 @@ public class PrecificacaoServiceImpl implements PrecificacaoService {
 
     @Override
     public void updateAtivoPrecificacao(MessageOperacao messageOperacao) {
-        try{
-            Precificacao lastRegistration = precificacaoRepository.findLastByCodigoAtivo(messageOperacao.getCodigoAtivo());
+        try {
+            Precificacao lastRegistration = precificacaoRepository.findLastByCodigoAtivo(messageOperacao.getCodigoAtivo())
+                    .orElseThrow(() -> new RuntimeException("Ativo com precificação não encontrada: " + messageOperacao.getCodigoAtivo()));
 
             log.info("Desatualizando último registro do ativo {}", messageOperacao.getCodigoAtivo());
             precificacaoRepository.updateOutdatedPrecificao(lastRegistration.getId());
@@ -32,7 +33,7 @@ public class PrecificacaoServiceImpl implements PrecificacaoService {
 
             log.info("Registro nova cotação do ativo: {}", precificacaoUpdate.getCodigoAtivo());
             precificacaoRepository.registerNewPrecificacao(precificacaoUpdate);
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             String message = "Erro ao tentar atualizar precificação para o ativo: " + messageOperacao.getCodigoAtivo();
             log.error("{}. Mensagem de exceção: {}", message,  e.getMessage());
             throw new RuntimeException(message);

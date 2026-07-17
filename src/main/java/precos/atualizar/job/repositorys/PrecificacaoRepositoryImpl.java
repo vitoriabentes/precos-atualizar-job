@@ -9,6 +9,8 @@ import precos.atualizar.job.interfaces.PrecificacaoRepository;
 import precos.atualizar.job.mappers.PrecificacaoRowMapper;
 import precos.atualizar.job.models.Precificacao;
 
+import java.util.Optional;
+
 @Repository
 public class PrecificacaoRepositoryImpl implements PrecificacaoRepository {
     private static final Logger log = LoggerFactory.getLogger(PrecificacaoRepositoryImpl.class);
@@ -20,11 +22,11 @@ public class PrecificacaoRepositoryImpl implements PrecificacaoRepository {
     private PrecificacaoRowMapper precificacaoRowMapper;
 
     @Override
-    public Precificacao findLastByCodigoAtivo(String codigoAtivo) {
+    public Optional<Precificacao> findLastByCodigoAtivo(String codigoAtivo) {
         String query = """
                 SELECT * FROM PRECOS.PRECIFICACAO WHERE ATUALIZADO = TRUE AND CODIGO_ATIVO = ? 
                 """;
-        return jdbcTemplate.queryForObject(query, precificacaoRowMapper, codigoAtivo);
+        return Optional.ofNullable(jdbcTemplate.queryForObject(query, precificacaoRowMapper, codigoAtivo));
     }
 
     @Override

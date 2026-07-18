@@ -1,11 +1,11 @@
 package precos.atualizar.job.consumer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import precos.atualizar.job.interfaces.AtivoService;
 import precos.atualizar.job.interfaces.PrecificacaoService;
 import precos.atualizar.job.models.MessageOperacao;
 
@@ -16,9 +16,14 @@ public class PrecosAtualizarConsumer {
     @Autowired
     private PrecificacaoService precificacaoService;
 
+    @Autowired
+    private AtivoService ativoService;
+
     @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "20", maxMessagesPerPoll = "1")
     public void listen(@Payload MessageOperacao message) {
         try {
+            ativoService.updateQuantityAtivo(message.getQuantidade(), message.getCodigoAtivo());
+
             log.info("Mensagem recebida, atualizando precificação do ativo: {}", message.getCodigoAtivo());
             precificacaoService.updateAtivoPrecificacao(message);
         } catch (Exception e) {

@@ -12,6 +12,7 @@ import precos.atualizar.job.models.MessageOperacao;
 import precos.atualizar.job.models.Precificacao;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Service
@@ -43,17 +44,35 @@ public class PrecificacaoServiceImpl implements PrecificacaoService {
     }
 
     private Precificacao calculePrecificacao(MessageOperacao messageOperacao){
-        BigDecimal constant = messageOperacao.getIndexador().multiply(BigDecimal.valueOf(messageOperacao.getQuantidade()));
-        if(messageOperacao.getTipoOperacao().equals(TypeOfOperacao.VENDA)){
-            constant = constant.multiply(BigDecimal.valueOf(-1));
-        }
-        BigDecimal preco = messageOperacao.getPrecoUnitario().add(messageOperacao.getPrecoUnitario().multiply(constant));
+        BigDecimal oldPrice = messageOperacao.getPrecoUnitario();
+        BigDecimal quantityFactor = BigDecimal.valueOf(Math.sqrt(messageOperacao.getQuantidade()));
+        int signal = messageOperacao.getTipoOperacao().equals(TypeOfOperacao.VENDA) ? -1 : 1;
 
-        log.info("Calculando nova precificação para o ativo: {}. Preço calculado: {}", messageOperacao.getCodigoAtivo(), preco);
+        BigDecimal impact = messageOperacao.getIndexador()
+                .multiply(quantityFactor)
+                .multiply(BigDecimal.valueOf(signal));
+
+        log.info("Realizando calculo da nova precificacao do ativo {}: {} × (1 + {} × √{} × {})",
+                messageOperacao.getCodigoAtivo(),
+                oldPrice.setScale(6, RoundingMode.DOWN),
+                messageOperacao.getIndexador(),
+                messageOperacao.getQuantidade(),
+                signal
+        );
+
+        BigDecimal newPrice = oldPrice.add(oldPrice.multiply(impact))
+                .setScale(6, RoundingMode.DOWN);
+
+        log.info("Precificacao atualizada para o ativo {}: R$ {} -> R$ {} (variacao de {}%)",
+                messageOperacao.getCodigoAtivo(),
+                oldPrice.setScale(6, RoundingMode.DOWN),
+                newPrice,
+                impact.multiply(BigDecimal.valueOf(100)).setScale(6, RoundingMode.DOWN)
+        );
 
         return new Precificacao(
                 messageOperacao.getCodigoAtivo(),
-                preco,
+                newPrice,
                 LocalDateTime.now(),
                 true
         );

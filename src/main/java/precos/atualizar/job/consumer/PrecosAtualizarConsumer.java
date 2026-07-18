@@ -16,7 +16,7 @@ public class PrecosAtualizarConsumer {
     @Autowired
     private PrecificacaoService precificacaoService;
 
-    @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "0", maxMessagesPerPoll = "1")
+    @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "20", maxMessagesPerPoll = "1")
     public void listen(@Payload MessageOperacao message) {
         try {
             log.info("Mensagem recebida, atualizando precificação do ativo: {}", message.getCodigoAtivo());

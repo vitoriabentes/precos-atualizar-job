@@ -22,7 +22,7 @@ public class PrecosAtualizarConsumer {
     @SqsListener(value = "${app.sqs.queue-name}", pollTimeoutSeconds = "20", maxMessagesPerPoll = "1")
     public void listen(@Payload MessageOperacao message) {
         try {
-            ativoService.updateQuantityAtivo(message.getQuantidade(), message.getCodigoAtivo());
+            ativoService.updateQuantityAtivo(message.getQuantidade(), message.getCodigoAtivo(), message.getTipoOperacao());
 
             log.info("Mensagem recebida, atualizando precificação do ativo: {}", message.getCodigoAtivo());
             precificacaoService.updateAtivoPrecificacao(message);

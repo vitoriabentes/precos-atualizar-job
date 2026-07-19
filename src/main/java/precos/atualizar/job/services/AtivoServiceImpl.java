@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import precos.atualizar.job.enums.TypeOfOperacao;
 import precos.atualizar.job.interfaces.AtivoRepository;
 import precos.atualizar.job.interfaces.AtivoService;
 import precos.atualizar.job.models.Ativo;
@@ -17,9 +18,11 @@ public class AtivoServiceImpl implements AtivoService {
     @Autowired
     private AtivoRepository ativoRepository;
 
-    public void updateQuantityAtivo(int quantityTraded, String codigoAtivo) {
+    public void updateQuantityAtivo(int quantityTraded, String codigoAtivo, TypeOfOperacao type) {
         Ativo ativo = ativoRepository.findByCodigo(codigoAtivo);
-        int newQuantity = ativo.getQuantidade() - quantityTraded;
+        int newQuantity;
+        if(type.equals(TypeOfOperacao.VENDA)) newQuantity = ativo.getQuantidade() + quantityTraded;
+        else newQuantity = ativo.getQuantidade() - quantityTraded;
 
         log.info("Atualizando quantidade do ativo {}: de {} para {}", codigoAtivo, ativo.getQuantidade(), newQuantity);
         ativoRepository.updateQuantityAtivo(newQuantity, codigoAtivo);
